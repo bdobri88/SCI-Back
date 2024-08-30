@@ -26,7 +26,7 @@ namespace WSInformatica.Models
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlServer("Server=DESKTOP-J6464T0\\SQLEXPRESS;DataBase=Informatica;Trusted_Connection=True;TrustServerCertificate=True;");
-            }//Server=andromeda-tandil-wired-wgbjqpbwcn.dynamic-m.com,11433;Database=Prueba;User Id=stock;Password=Andromeda1234
+            }
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
