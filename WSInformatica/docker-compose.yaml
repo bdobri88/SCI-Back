@@ -1,0 +1,12 @@
+services:
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    restart: always
+    environment:
+      SA_PASSWORD: Brai1234 # Cambia esto a tu contraseña segura
+      ACCEPT_EULA: Y
+    ports:
+      - "1433:1433"
+    volumes:
+      - mi-sql-data:/var/opt/mssql/data # Monta el volumen sql-data en la ubicación /var/opt/mssql/data dentro del contenedor
+    command: --name informatica

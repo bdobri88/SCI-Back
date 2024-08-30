@@ -1,0 +1,63 @@
+# Visual Studio
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+*.sln
+.vs/
+.vs/WSInformatica/FileContentIndex/
+.vs/WSInformatica/DesignTimeBuild/
+.vs/slnx.sqlite
+.vs/ProjectEvaluation/
+.vs/WSInformatica/v17/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]eleases/
+[Rr]eleasesPublic/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nuspec
+*.dll
+*.exe
+*.pdb
+*.cache
+*.config
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NPM Packages
+node_modules/
+package-lock.json
+
+# Azure Pipelines
+.azure-pipelines/
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
