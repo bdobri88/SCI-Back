@@ -33,14 +33,28 @@ namespace WSInformatica.Controllers
             try
             {
 
-                var lst = await _context.Efectivos.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
-                oRespuesta.data = _mapper.Map<List<GetAllEfectivoDTO>>(lst);
+                // Incluye la entidad Dependencia en la consulta
+                var lst = await _context.Efectivos
+                    .Include(e => e.Dependencia) // Incluir la dependencia relacionada
+                    .ToListAsync();
+
+                // Mapear la lista de Efectivos a una lista de GetAllEfectivoDTO
+                var efectiveDTOList = lst.Select(e => new GetAllEfectivoDTO
+                {
+                    Id = e.Id,
+                    Legajo = e.Legajo,
+                    Nombre = e.Nombre,
+                    Apellido = e.Apellido,
+                    IdDependencia = e.IdDependencia,
+                    NombreDependencia = e.Dependencia != null ? e.Dependencia.Nombre : null // Mapear el nombre de la dependencia
+                }).ToList();
+
+                oRespuesta.data = efectiveDTOList;
                 oRespuesta.Exito = 1;
             }
             catch (Exception ex)
             {
                 oRespuesta.Mensaje = ex.Message;
-                //throw new Exception(ex.Message);
             }
             return Ok(oRespuesta);
         }
@@ -134,8 +148,8 @@ namespace WSInformatica.Controllers
             return Ok(oRespuesta);
         }
 
-        [HttpDelete("Delete")] //Eliminar por ID
-        public async Task<ActionResult<BaseResponse<bool>>> Delete([FromBody] int id)
+        [HttpDelete("Delete/{id}")]
+        public async Task<ActionResult<BaseResponse<bool>>> Delete(int id)
         {
             Respuesta oRespuesta = new Respuesta();
             try
@@ -143,17 +157,18 @@ namespace WSInformatica.Controllers
                 Efectivo oEfectivo = await _context.Efectivos.FindAsync(id);
                 if (oEfectivo == null)
                 {
-                    return BadRequest($"El efectivo que quiere eliminar no existe.");
+                    return NotFound($"El efectivo que quiere eliminar no existe.");
                 }
-                _context.Remove(oEfectivo);
+                _context.Efectivos.Remove(oEfectivo);
                 await _context.SaveChangesAsync();
                 oRespuesta.Exito = 1;
+                return Ok(oRespuesta);
             }
             catch (Exception ex)
             {
                 oRespuesta.Mensaje = ex.Message;
+                return StatusCode(500, oRespuesta);
             }
-            return Ok(oRespuesta);
         }
     }
 }

@@ -6,6 +6,7 @@ namespace WSInformatica.DTOs.EfectivoDTO
     {
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int Id { get; set; }
+
         [Required(ErrorMessage = "El campo {0} es requerido")]
         public int Legajo { get; set; }
         [Required(ErrorMessage = "El campo {0} es requerido")]
