@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WSInformatica.DTOs.DependenciaDTO;
 using WSInformatica.DTOs.EfectivoDTO;
 using WSInformatica.Models;
@@ -82,25 +83,38 @@ namespace WSInformatica.Controllers
             return Ok(oRespuesta);
         }
 
-        [HttpDelete("Delete")]
-        public async Task<ActionResult<BaseResponse<bool>>> Delete([FromBody] int id)
+        [HttpDelete("Delete/{id}")]
+        public async Task<ActionResult<BaseResponse<bool>>> Delete(int id)
         {
-            Respuesta oRepuesta = new Respuesta();
-            oRepuesta.Exito = 0;
+            Respuesta oRespuesta = new Respuesta();
+            oRespuesta.Exito = 0;
             try
             {
                 Dependencia oDependencia = await _context.Dependencia.FindAsync(id);
                 if (oDependencia is null)
-                   BadRequest($"No se encontro la dependencia{oDependencia.Nombre}");
+                   return NotFound($"No se encontro la dependencia{oDependencia.Nombre}");
+
                 _context.Dependencia.Remove(oDependencia);
                 _context.SaveChanges();
-                oRepuesta.Exito = 1;
+                oRespuesta.Exito = 1;
+            }
+            catch (DbUpdateException ex)
+            {
+                // Verificar si la excepción se debe a una violación de la restricción de clave foránea
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("REFERENCE constraint"))
+                {
+                    oRespuesta.Mensaje = "No se puede eliminar la dependencia porque tiene efectivos asociados.";
+                    return BadRequest(oRespuesta);
+                }
+                oRespuesta.Mensaje = ex.Message;
+                return StatusCode(500, oRespuesta);
             }
             catch (Exception ex)
             {
-                oRepuesta.Mensaje = ex.Message;
+                oRespuesta.Mensaje = ex.Message;
+                return StatusCode(500, oRespuesta);
             }
-            return Ok(oRepuesta);
+            return Ok(oRespuesta);
         }
     }
 }
