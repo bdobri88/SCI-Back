@@ -79,13 +79,30 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline.
 
+// Configura el pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+
+
+app.UseStaticFiles(); // Para servir archivos estáticos desde wwwroot
+app.UseRouting();
+
+app.UseCors(MyAllowSpecificOrigins);
+
+
 
 app.UseHttpsRedirection();
 
@@ -96,5 +113,8 @@ app.UseAuthentication();// JWT llamada a la funcion
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html"); // Redirige todas las solicitudes no manejadas a index.html en wwwroot
+
 
 app.Run();
