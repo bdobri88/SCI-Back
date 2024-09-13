@@ -26,7 +26,7 @@ namespace WSInformatica.Services
             UserResponse userresponse = new UserResponse();
 
                 string spassword = Encrypt.GetSHA256(model.Password);
-                var usuario = _context.Users.Where(u => u.Email == model.Email && u.Password == spassword).FirstOrDefault();
+                var usuario = _context.User.Where(u => u.Email == model.Email && u.Password == spassword).FirstOrDefault();
 
                 if (usuario == null) return null;
 

@@ -24,7 +24,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                var lst = _context.Personas.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = _context.Persona.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
             }
@@ -51,7 +51,7 @@ namespace WSInformatica.Controllers
                 oPersona.Apellido2 = oModel.Apellido2;
                 oPersona.Clase = oModel.Clase;
 
-                _context.Personas.Add(oPersona);
+                _context.Persona.Add(oPersona);
                 _context.SaveChanges();
                 oRespuesta.Exito = 1;
                 oRespuesta.data = oPersona;
@@ -70,7 +70,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Persona oPersona = await _context.Personas.FindAsync(oModel.Id);
+                Persona oPersona = await _context.Persona.FindAsync(oModel.Id);
                 oPersona.Dni = oModel.Dni;
                 oPersona.Nombre1 = oModel.Nombre1;
                 oPersona.Nombre2 = oModel.Nombre2;
@@ -97,7 +97,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Persona Opersona = await _context.Personas.FindAsync(Id);
+                Persona Opersona = await _context.Persona.FindAsync(Id);
                 _context.Remove(Opersona);
                 _context.SaveChanges();
                 oRespuesta.Exito = 1;

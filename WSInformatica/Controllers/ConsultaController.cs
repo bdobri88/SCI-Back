@@ -48,7 +48,7 @@ namespace WSInformatica.Controllers
                     {
                         lPersonas.ConsultaId = idDeNuevaConsulta;
                         var persona = _mapper.Map<Persona> (lPersonas);
-                        _context.Personas.Add(persona);
+                        _context.Persona.Add(persona);
                         await _context.SaveChangesAsync();
                     }
                 }

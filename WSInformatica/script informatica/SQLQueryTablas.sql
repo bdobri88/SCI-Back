@@ -61,7 +61,7 @@ CREATE TABLE [dbo].[Consulta](
 ) ON [PRIMARY]
 GO
 
-CREATE TABLE [dbo].[automotor](
+CREATE TABLE [dbo].[Automotor](
 	[id] [int] IDENTITY(1,1) NOT NULL,
 	[IdConsulta] [int] NULL,
 	[tipo_automotor] [int] NULL,

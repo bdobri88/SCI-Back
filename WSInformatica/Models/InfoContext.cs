@@ -11,14 +11,14 @@ namespace WSInformatica.Models
         {
             
         }
-        public virtual DbSet<Arma> Armas { get; set; }
-        public virtual DbSet<Automotor> Automotors { get; set; } 
+        public virtual DbSet<Arma> Arma { get; set; }
+        public virtual DbSet<Automotor> Automotor { get; set; } 
         public virtual DbSet<Consulta> Consulta { get; set; } 
         public virtual DbSet<Dependencia> Dependencia { get; set; } 
-        public virtual DbSet<Efectivo> Efectivos { get; set; } 
-        public virtual DbSet<Persona> Personas { get; set; } 
-        public virtual DbSet<TipoAutomotor> TipoAutomotors { get; set; } 
-        public virtual DbSet<User> Users { get; set; }
+        public virtual DbSet<Efectivo> Efectivo { get; set; } 
+        public virtual DbSet<Persona> Persona { get; set; } 
+        public virtual DbSet<TipoAutomotor> Tipo_Automotor { get; set; } 
+        public virtual DbSet<User> User { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -32,7 +32,7 @@ namespace WSInformatica.Models
         {
             modelBuilder.Entity<Efectivo>()
                 .HasOne(e => e.Dependencia)
-                .WithMany(d => d.Efectivos)
+                .WithMany(d => d.Efectivo)
                 .HasForeignKey(e => e.IdDependencia);
 
             // Otros mapeos y configuraciones...

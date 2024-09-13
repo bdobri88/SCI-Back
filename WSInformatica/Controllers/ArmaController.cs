@@ -23,7 +23,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                var lst = _context.Armas.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = _context.Arma.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
                 if (lst == null)
@@ -51,7 +51,7 @@ namespace WSInformatica.Controllers
                 oArma.Marca = oModel.Marca;
                 oArma.Tipo = oModel.Tipo;
                 oArma.Calibre = oModel.Calibre;
-                _context.Armas.Add(oArma);
+                _context.Arma.Add(oArma);
                 _context.SaveChanges();
                 oRespuesta.Exito = 1;
                 oRespuesta.data = oArma;
@@ -70,7 +70,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Arma oArma = await _context.Armas.FindAsync(oModel.Id);
+                Arma oArma = await _context.Arma.FindAsync(oModel.Id);
                 oArma.NumArma = oModel.NumArma;
                 oArma.Marca = oModel.Marca;
                 oArma.Tipo = oModel.Tipo;
@@ -96,7 +96,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Arma oArma = await _context.Armas.FindAsync(Id);
+                Arma oArma = await _context.Arma.FindAsync(Id);
                 _context.Remove(oArma);
                 _context.SaveChanges();
                 oRespuesta.Exito = 1;

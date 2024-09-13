@@ -34,7 +34,7 @@ namespace WSInformatica.Controllers
             {
 
                 // Incluye la entidad Dependencia en la consulta
-                var lst = await _context.Efectivos
+                var lst = await _context.Efectivo
                     .Include(e => e.Dependencia) // Incluir la dependencia relacionada
                     .ToListAsync();
 
@@ -68,7 +68,7 @@ namespace WSInformatica.Controllers
             {
                 //var oEfectivo = await _context.Efectivos.Include(e => e.Dependencia).FirstOrDefaultAsync(e => e.Legajo == legajo);
 
-                var oEfectivo = await _context.Efectivos
+                var oEfectivo = await _context.Efectivo
                 .Where(e => e.Legajo == legajo)
                 .Include(e => e.Dependencia)
                 .Select(e => new GetAllEfectivoDTO
@@ -108,12 +108,12 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
             try
             {
-                var efectivo = await _context.Efectivos.FirstOrDefaultAsync(d => d.Legajo == model.Legajo);
+                var efectivo = await _context.Efectivo.FirstOrDefaultAsync(d => d.Legajo == model.Legajo);
                 if (efectivo is not null)
                     return BadRequest($"Ya existe un efectivo con legajo: {efectivo.Legajo} ");
 
                 efectivo = _mapper.Map<Efectivo>(model);
-                _context.Efectivos.Add(efectivo);
+                _context.Efectivo.Add(efectivo);
                 await _context.SaveChangesAsync();
 
                 oRespuesta.Exito = 1;
@@ -132,7 +132,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                var exist = await _context.Efectivos.AnyAsync(x => x.Legajo == model.Legajo);
+                var exist = await _context.Efectivo.AnyAsync(x => x.Legajo == model.Legajo);
                 if (!exist)
                     return BadRequest($"No existe un efectivo con legajo: {model.Legajo} ");
 
@@ -154,12 +154,12 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
             try
             {
-                Efectivo oEfectivo = await _context.Efectivos.FindAsync(id);
+                Efectivo oEfectivo = await _context.Efectivo.FindAsync(id);
                 if (oEfectivo == null)
                 {
                     return NotFound($"El efectivo que quiere eliminar no existe.");
                 }
-                _context.Efectivos.Remove(oEfectivo);
+                _context.Efectivo.Remove(oEfectivo);
                 await _context.SaveChangesAsync();
                 oRespuesta.Exito = 1;
                 return Ok(oRespuesta);

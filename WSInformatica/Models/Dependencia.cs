@@ -8,6 +8,6 @@ namespace WSInformatica.Models
         public int Id { get; set; }
         public string Nombre { get; set; } = null!;
 
-        public virtual ICollection<Efectivo> Efectivos { get; set; } = new List<Efectivo>();
+        public virtual ICollection<Efectivo> Efectivo { get; set; } = new List<Efectivo>();
     }
 }

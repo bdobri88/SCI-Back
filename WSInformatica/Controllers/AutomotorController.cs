@@ -29,7 +29,7 @@ namespace WSInformatica.Controllers
             oRespuesta.Exito = 0;
             try
             {
-                var lst = _context.Automotors.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = _context.Automotor.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
             }
@@ -65,7 +65,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Automotor oAutomotor = await _context.Automotors.FindAsync(oModel.Id);
+                Automotor oAutomotor = await _context.Automotor.FindAsync(oModel.Id);
                 oAutomotor.TipoAutomotor = oModel.TipoAutomotor;
                 oAutomotor.Dominio = oModel.Dominio;
                 oAutomotor.Chasis = oModel.Chasis;
@@ -90,7 +90,7 @@ namespace WSInformatica.Controllers
 
             try
             {
-                Automotor oAutomotor = await _context.Automotors.FindAsync(Id);
+                Automotor oAutomotor = await _context.Automotor.FindAsync(Id);
                 _context.Remove(oAutomotor);
                 _context.SaveChanges();
                 oRespuesta.Exito = 1;
@@ -109,7 +109,7 @@ namespace WSInformatica.Controllers
             oRespuesta.Exito = 0;
             try
             {
-                var lst = await _context.TipoAutomotors.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = await _context.Tipo_Automotor.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
             }
