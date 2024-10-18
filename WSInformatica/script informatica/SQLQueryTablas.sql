@@ -8,7 +8,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 CREATE TABLE [dbo].[Efectivo](
-	[id] [int] IDENTITY(1,1) NOT NULL,
+	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[Legajo] [int] NOT NULL,
 	[Nombre] varchar(50) NOT NULL,
 	[Apellido] varchar(50) NOT NULL,
@@ -30,17 +30,15 @@ CREATE TABLE [dbo].[Dependencia](
 ) ON [PRIMARY]
 GO
 
-CREATE TABLE [dbo].[User](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[Email] varchar(100) NOT NULL,
-	[Password] varchar(100) NOT NULL,
-	[Nombre] varchar(50) NOT NULL,
-	[IdDependencia] int NULL,
- CONSTRAINT [PK_user] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+CREATE TABLE [dbo].[User] (
+    Id INT IDENTITY(1,1) NOT NULL,
+    IdEfectivo INT NOT NULL,  
+    Password VARCHAR(100) NOT NULL,  
+    EsAdmin BIT NOT NULL,  
+    CONSTRAINT PK_User PRIMARY KEY CLUSTERED (Id ASC),
+    CONSTRAINT FK_User_Efectivo FOREIGN KEY (IdEfectivo) REFERENCES Efectivo(Id),
+    CONSTRAINT UC_User_Efectivo UNIQUE (IdEfectivo) 
+);
 GO
 
 CREATE TABLE [dbo].[Consulta](
@@ -63,14 +61,14 @@ GO
 
 CREATE TABLE [dbo].[Automotor](
 	[id] [int] IDENTITY(1,1) NOT NULL,
-	[IdConsulta] [int] NULL,
-	[tipo_automotor] [int] NULL,
-	[dominio] [nchar](10) NULL,
-	[chasis] [nchar](20) NULL,
-	[motor] [nchar](20) NULL,
+	ConsultaId [int] NULL,
+	[TipoAutomotorId] [int] NULL,
+	[Dominio] [nchar](10) NULL,
+	[Chasis] [nchar](20) NULL,
+	[Motor] [nchar](20) NULL,
 	[Resultado] [bit] NULL,
-	CONSTRAINT [FK_automotor_consulta] FOREIGN KEY([IdConsulta])REFERENCES [dbo].[consulta] ([Id]),
-	CONSTRAINT [FK_automotor_tipo_automotor] FOREIGN KEY([tipo_automotor])REFERENCES [dbo].[Tipo_Automotor] ([Id]),
+	CONSTRAINT [FK_automotor_consulta] FOREIGN KEY([ConsultaId])REFERENCES [dbo].[Consulta] ([Id]),
+	CONSTRAINT [FK_automotor_tipo_automotor] FOREIGN KEY([TipoAutomotorId])REFERENCES [dbo].[TipoAutomotor] ([Id]),
  CONSTRAINT [PK_automotor] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -78,8 +76,7 @@ CREATE TABLE [dbo].[Automotor](
 ) ON [PRIMARY]
 GO
 
-
-CREATE TABLE [dbo].[Tipo_Automotor](
+CREATE TABLE [dbo].[TipoAutomotor](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[Tipo] varchar(50)NOT NULL,
  CONSTRAINT [PK_tipo_automotor] PRIMARY KEY CLUSTERED 
@@ -91,15 +88,15 @@ GO
 
 CREATE TABLE [dbo].[Persona](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[IdConsulta] [int] NULL,
+	[ConsultaId] [int] NULL,
 	[Dni] [int] NULL,
 	[Nombre1] varchar(50) NULL,
 	[Nombre2] varchar(50) NULL,
 	[Apellido1] varchar(50) NULL,
 	[Apellido2] varchar(50) NULL,
-	[clase] [int] NULL,
+	[Clase] [int] NULL,
 	[Resultado] [bit] NULL,
-	CONSTRAINT [FK_persona_consulta] FOREIGN KEY([IdConsulta])REFERENCES [dbo].[Consulta] ([Id]),
+	CONSTRAINT [FK_persona_consulta] FOREIGN KEY([ConsultaId])REFERENCES [dbo].[Consulta] ([Id]),
 	CONSTRAINT [PK_persona] PRIMARY KEY CLUSTERED 
 (
 	[id] ASC
@@ -110,13 +107,13 @@ GO
 
 CREATE TABLE [dbo].[Arma](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[IdConsulta] [int] NULL,
+	[ConsultaId] [int] NULL,
 	[NumArma] varchar(50) NOT NULL,
 	[Marca] varchar(50) NULL,
 	[Tipo] varchar(50) NULL,
 	[Calibre] [int] NULL,
 	[Resultado] [bit] NULL,
-	CONSTRAINT [FK_arma_consulta] FOREIGN KEY([IdConsulta])REFERENCES [dbo].[Consulta] ([Id]),
+	CONSTRAINT [FK_arma_consulta] FOREIGN KEY([ConsultaId])REFERENCES [dbo].[Consulta] ([Id]),
  CONSTRAINT [PK_arma] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

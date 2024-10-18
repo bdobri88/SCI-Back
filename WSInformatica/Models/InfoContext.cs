@@ -17,7 +17,7 @@ namespace WSInformatica.Models
         public virtual DbSet<Dependencia> Dependencia { get; set; } 
         public virtual DbSet<Efectivo> Efectivo { get; set; } 
         public virtual DbSet<Persona> Persona { get; set; } 
-        public virtual DbSet<TipoAutomotor> Tipo_Automotor { get; set; } 
+        public virtual DbSet<TipoAutomotor> TipoAutomotor { get; set; } 
         public virtual DbSet<User> User { get; set; }
 
 

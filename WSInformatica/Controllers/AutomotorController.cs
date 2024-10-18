@@ -66,7 +66,7 @@ namespace WSInformatica.Controllers
             try
             {
                 Automotor oAutomotor = await _context.Automotor.FindAsync(oModel.Id);
-                oAutomotor.TipoAutomotor = oModel.TipoAutomotor;
+                oAutomotor.TipoAutomotorId = oModel.TipoAutomotor;
                 oAutomotor.Dominio = oModel.Dominio;
                 oAutomotor.Chasis = oModel.Chasis;
                 oAutomotor.Motor = oModel.Motor;
@@ -109,7 +109,7 @@ namespace WSInformatica.Controllers
             oRespuesta.Exito = 0;
             try
             {
-                var lst = await _context.Tipo_Automotor.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = await _context.TipoAutomotor.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
             }

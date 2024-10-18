@@ -5,7 +5,7 @@ namespace WSInformatica.Models
     {
         public int Id { get; set; }
         public int ConsultaId { get; set; }
-        public int? TipoAutomotor { get; set; }
+        public int? TipoAutomotorId { get; set; }
         public string? Dominio { get; set; }
         public string? Chasis { get; set; }
         public string? Motor { get; set; }
