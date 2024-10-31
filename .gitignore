@@ -6,7 +6,7 @@
 *.userosscache
 *.suo
 *.sln.docstates
-*.sln
+
 .vs/
 .vs/WSInformatica/FileContentIndex/
 .vs/WSInformatica/DesignTimeBuild/
