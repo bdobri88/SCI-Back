@@ -73,6 +73,7 @@ namespace WSInformatica.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
+                oRespuesta.Exito = 1;
 
             }
             catch (Exception ex)
@@ -92,7 +93,7 @@ namespace WSInformatica.Controllers
         {
             Respuesta oRespuesta = new Respuesta();           
  
-            DateTime datee = DateTime.ParseExact(date, "yyyy-MM-dd", null);
+            DateTime datee = DateTime.ParseExact(date, "dd-MM-yyyy", null);
             
             try
             {
@@ -155,7 +156,7 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
 
          //   string dateStr = "2024-02-06"; //modificar sin harcodear
-            DateTime datee = DateTime.ParseExact(date, "yyyy-MM-dd", null);
+            DateTime datee = DateTime.ParseExact(date, "dd-MM-yyyy", null);
 
             try
             {
