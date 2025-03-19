@@ -47,25 +47,33 @@ builder.Services.Configure<AppSettings>(appSettingsSection);
 
 var appSettings = appSettingsSection.Get<AppSettings>();
 var llave = Encoding.ASCII.GetBytes(appSettings.Secreto);
-builder.Services.AddAuthentication(d =>
-{
-    d.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    d.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-    .AddJwtBearer(d =>
+//builder.Services.AddAuthentication(d =>
+//{
+//    d.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    d.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//    .AddJwtBearer(d =>
+//    {
+//        d.RequireHttpsMetadata = false;
+//        d.SaveToken = true;
+//        d.TokenValidationParameters = new TokenValidationParameters
+//        {
+//            ValidateIssuerSigningKey = true,
+//            IssuerSigningKey = new SymmetricSecurityKey(llave),
+//            ValidateIssuer = false,
+//            ValidateAudience = false
+//        };
+//    });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        d.RequireHttpsMetadata = false;
-        d.SaveToken = true;
-        d.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(llave),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
+        options.Authority = "https://informatica.kinde.com/oauth2"; // Reemplaza con tu dominio de Kinde
+        options.Audience = "https://informatica.kinde.com/api"; 
+        options.RequireHttpsMetadata = false;
     });
 
-
+builder.Services.AddAuthorization();
 
 
 builder.Services.AddScoped<IUserService, UserService>();/* codigo injectado, no ncesito crearlo lo puedo recibir directamente por
