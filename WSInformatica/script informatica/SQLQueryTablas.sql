@@ -9,7 +9,7 @@ GO
 
 CREATE TABLE [dbo].[Efectivo](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[Legajo] [int] NOT NULL,
+	Legajo INT NOT NULL UNIQUE,
 	[Nombre] varchar(50) NOT NULL,
 	[Apellido] varchar(50) NOT NULL,
 	[IdDependencia] [int] NULL,

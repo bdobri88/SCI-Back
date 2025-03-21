@@ -6,6 +6,10 @@ namespace WSInformatica.Models.Request
     {
         [Required]
         public string Email { get; set; }
+
+        [Required]
+        public int Legajo { get; set; }
+
         [Required]
         public string Password { get; set; }
     }

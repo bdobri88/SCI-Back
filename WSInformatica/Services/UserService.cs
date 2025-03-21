@@ -25,14 +25,14 @@ namespace WSInformatica.Services
         {
             UserResponse userresponse = new UserResponse();
 
-                string spassword = Encrypt.GetSHA256(model.Password);
-                var usuario = _context.User.Where(u => u.Email == model.Email && u.Password == spassword).FirstOrDefault();
+            string spassword = Encrypt.GetSHA256(model.Password);
+            var usuario = _context.User.Where(u => u.Password == spassword).FirstOrDefault();
 
-                if (usuario == null) return null;
+            if (usuario == null) return null;
 
-                userresponse.Email = usuario.Email;
-                userresponse.Token = GetToken(usuario);
-            
+            //userresponse.Email = usuario.Email;
+            userresponse.Token = GetToken(usuario);
+
             return userresponse;
         }
 
@@ -46,7 +46,7 @@ namespace WSInformatica.Services
                     new Claim[]
                     {
                         new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                        new Claim(ClaimTypes.NameIdentifier, usuario.Email)
+                       // new Claim(ClaimTypes.NameIdentifier, usuario.Email)
                     }
                     ),
                 Expires = DateTime.UtcNow.AddDays(60),//tiempo que dura el token
