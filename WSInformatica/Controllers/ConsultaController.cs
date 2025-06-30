@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ namespace WSInformatica.Controllers
 {
     [Route("api/Consulta")]
     [ApiController]
-  //  [Authorize] //autorizacion por token
+    [Authorize] 
 
     public class ConsultaController : ControllerBase
     {
@@ -78,11 +79,10 @@ namespace WSInformatica.Controllers
             }
             catch (Exception ex)
             {
-                // Accede a la excepción interna para obtener más detalles sobre el error
                 var innerException = ex.InnerException;
-                // Puedes imprimir o registrar los detalles del error para su depuración
+
                 Console.WriteLine(innerException.Message);
-                // También puedes lanzar una excepción personalizada o manejar el error de acuerdo a tus necesidades
+              
             }
             return Ok(oRespuesta);
         }
@@ -155,7 +155,6 @@ namespace WSInformatica.Controllers
         {
             Respuesta oRespuesta = new Respuesta();
 
-         //   string dateStr = "2024-02-06"; //modificar sin harcodear
             DateTime datee = DateTime.ParseExact(date, "dd-MM-yyyy", null);
 
             try
@@ -204,7 +203,7 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
             DateTime dateD = DateTime.ParseExact(date, "yyyy-MM", null);
             var month = dateD.Month; 
-            var year = dateD.Year; // Cambiar al año deseado
+            var year = dateD.Year;
 
             try
             {
@@ -251,7 +250,7 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
             DateTime dateD = DateTime.ParseExact(date, "yyyy-MM", null);
             var month = dateD.Month;
-            var year = dateD.Year; // Cambiar al año deseado
+            var year = dateD.Year; 
 
             try
             {

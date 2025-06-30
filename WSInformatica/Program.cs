@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using WSInformatica.Models;
 using WSInformatica.Models.Common;
@@ -10,11 +11,11 @@ var MyAllowSpecificOrigins = "__myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration
- .SetBasePath(Directory.GetCurrentDirectory())
- .AddJsonFile($"appsettings.json", optional: false)
- .AddJsonFile($"appsettings.{builder}.json", optional: true)
- .AddEnvironmentVariables()
- .Build();//se lo agregue para la inyeccion de dependecias, lo saque mgp_Stock
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile($"appsettings.json", optional: false, reloadOnChange: true) 
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true) 
+    .AddEnvironmentVariables()
+    .Build();
 
 // Add services to the container.
 
@@ -23,10 +24,12 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
-                      {                            // Si utilizo '*' permite todo, si  no debo especificar 
-                          policy.WithHeaders("*");// Aqui se agregan las cabezeras que pueden acceder con el metodos POST
-                          policy.WithOrigins("*");// este es de la  pag official, aqui se agregan las paginas permitidas
-                          policy.WithMethods("*");//Este permite correr todos los metodos
+                      {
+                          policy.WithOrigins("http://localhost:4200",
+                                              "https://tudominiofrontend.com") // <--- ¡CAMBIAR ESTO PARA PRODUCCIÓN!
+                                              .AllowAnyHeader()
+                                              .AllowAnyMethod()
+                                              .AllowCredentials();
                       });
 });
 
@@ -47,6 +50,7 @@ builder.Services.Configure<AppSettings>(appSettingsSection);
 
 var appSettings = appSettingsSection.Get<AppSettings>();
 var llave = Encoding.ASCII.GetBytes(appSettings.Secreto);
+
 builder.Services.AddAuthentication(d =>
 {
     d.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -54,18 +58,20 @@ builder.Services.AddAuthentication(d =>
 })
     .AddJwtBearer(d =>
     {
-        d.RequireHttpsMetadata = false;
+        d.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // True en producción, false en desarrollo
         d.SaveToken = true;
         d.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(llave),
-            ValidateIssuer = false,
-            ValidateAudience = false
+            ValidateIssuer = true,    // <--- ¡AHORA VALIDAMOS EL EMISOR!
+            ValidIssuer = appSettings.Issuer, // <--- Aquí el emisor esperado
+            ValidateAudience = true,  // <--- ¡AHORA VALIDAMOS LA AUDIENCIA!
+            ValidAudience = appSettings.Audience, // <--- Aquí la audiencia esperada
+            ValidateLifetime = true,  // <--- ¡CRÍTICO: VALIDAR LA VIDA ÚTIL DEL TOKEN!
+            ClockSkew = TimeSpan.Zero // <--- Elimina el tiempo de gracia en la expiración
         };
     });
-
-
 
 
 builder.Services.AddScoped<IUserService, UserService>();/* codigo injectado, no ncesito crearlo lo puedo recibir directamente por
@@ -75,9 +81,57 @@ builder.Services.AddScoped<IConsultaService, ConsultaService>(); // codigo injec
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "SCI-Informatica", Version = "v1" });
+
+    // Configuración para JWT Bearer en Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Ingresa el token JWT de esta manera: Bearer {tu token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
+
+// Aplicar migraciones al inicio
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var dbContext = services.GetRequiredService<InfoContext>(); 
+        dbContext.Database.Migrate();
+        // Opcional: Si quieres seedear datos iniciales después de migrar
+        // SeedData.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+        // Considera detener la aplicación si la migración es crítica
+        // throw;
+    }
+}
 
 
 // Configure the HTTP request pipeline.
@@ -87,7 +141,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SCI-Informatica v1");
+    });
 }
 else
 {
@@ -99,9 +156,6 @@ else
 
 app.UseStaticFiles(); // Para servir archivos estáticos desde wwwroot
 app.UseRouting();
-
-app.UseCors(MyAllowSpecificOrigins);
-
 
 
 app.UseHttpsRedirection();

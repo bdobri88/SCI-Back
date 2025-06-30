@@ -12,17 +12,18 @@ using WSInformatica.Models;
 namespace WSInformatica.Migrations
 {
     [DbContext(typeof(InfoContext))]
-    [Migration("20240206152323_InitialCreateBase")]
-    partial class InitialCreateBase
+    [Migration("20250625143547_HacerMovilNulleable")]
+    partial class HacerMovilNulleable
     {
+        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.21")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("WSInformatica.Models.Arma", b =>
                 {
@@ -30,7 +31,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("Calibre")
                         .HasColumnType("int");
@@ -55,7 +56,7 @@ namespace WSInformatica.Migrations
 
                     b.HasIndex("ConsultaId");
 
-                    b.ToTable("Armas");
+                    b.ToTable("Arma");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.Automotor", b =>
@@ -64,7 +65,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Chasis")
                         .HasColumnType("nvarchar(max)");
@@ -81,14 +82,14 @@ namespace WSInformatica.Migrations
                     b.Property<bool>("Resultado")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("TipoAutomotor")
+                    b.Property<int?>("TipoAutomotorId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ConsultaId");
 
-                    b.ToTable("Automotors");
+                    b.ToTable("Automotor");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.Consulta", b =>
@@ -97,7 +98,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("Fecha")
                         .HasColumnType("datetime2");
@@ -115,7 +116,7 @@ namespace WSInformatica.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Movil")
+                    b.Property<int?>("Movil")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -129,7 +130,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -146,7 +147,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Apellido")
                         .IsRequired()
@@ -166,7 +167,7 @@ namespace WSInformatica.Migrations
 
                     b.HasIndex("IdDependencia");
 
-                    b.ToTable("Efectivos");
+                    b.ToTable("Efectivo");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.Persona", b =>
@@ -175,7 +176,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Apellido1")
                         .HasColumnType("nvarchar(max)");
@@ -205,7 +206,7 @@ namespace WSInformatica.Migrations
 
                     b.HasIndex("ConsultaId");
 
-                    b.ToTable("Personas");
+                    b.ToTable("Persona");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.TipoAutomotor", b =>
@@ -214,7 +215,7 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Tipo")
                         .IsRequired()
@@ -222,7 +223,7 @@ namespace WSInformatica.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TipoAutomotors");
+                    b.ToTable("TipoAutomotor");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.User", b =>
@@ -231,21 +232,13 @@ namespace WSInformatica.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("EsAdmin")
+                        .HasColumnType("bit");
 
-                    b.Property<int?>("IdDependencia")
+                    b.Property<int?>("IdEfectivo")
                         .HasColumnType("int");
-
-                    b.Property<int>("Legajo")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -253,7 +246,11 @@ namespace WSInformatica.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.HasIndex("IdEfectivo")
+                        .IsUnique()
+                        .HasFilter("[IdEfectivo] IS NOT NULL");
+
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("WSInformatica.Models.Arma", b =>
@@ -275,7 +272,7 @@ namespace WSInformatica.Migrations
             modelBuilder.Entity("WSInformatica.Models.Efectivo", b =>
                 {
                     b.HasOne("WSInformatica.Models.Dependencia", "Dependencia")
-                        .WithMany("Efectivos")
+                        .WithMany("Efectivo")
                         .HasForeignKey("IdDependencia");
 
                     b.Navigation("Dependencia");
@@ -290,6 +287,15 @@ namespace WSInformatica.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WSInformatica.Models.User", b =>
+                {
+                    b.HasOne("WSInformatica.Models.Efectivo", "Efectivo")
+                        .WithOne("User")
+                        .HasForeignKey("WSInformatica.Models.User", "IdEfectivo");
+
+                    b.Navigation("Efectivo");
+                });
+
             modelBuilder.Entity("WSInformatica.Models.Consulta", b =>
                 {
                     b.Navigation("Armas");
@@ -301,7 +307,13 @@ namespace WSInformatica.Migrations
 
             modelBuilder.Entity("WSInformatica.Models.Dependencia", b =>
                 {
-                    b.Navigation("Efectivos");
+                    b.Navigation("Efectivo");
+                });
+
+            modelBuilder.Entity("WSInformatica.Models.Efectivo", b =>
+                {
+                    b.Navigation("User")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

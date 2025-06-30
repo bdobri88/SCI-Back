@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -7,13 +8,15 @@ using WSInformatica.Models;
 using WSInformatica.Models.Common;
 using WSInformatica.Models.Request;
 using WSInformatica.Models.Response;
-using WSInformatica.Tools;
+using BCrypt.Net;
+using Azure.Core;
+using WSInformatica.DTOs.UserDTO;
 
 namespace WSInformatica.Services
 {
-    public class UserService : IUserService //Uso interface por si en un futuro deciden 
-    {                                       //cambiar la forma de autentificarse,por ejem utilizar un servicio de autentificacion
-        private readonly AppSettings _appSettings;//en esta variable tenemos el secreto para crear nuestro TOKEN
+    public class UserService : IUserService 
+    {                                       
+        private readonly AppSettings _appSettings;
         private readonly InfoContext _context;
 
         public UserService(IOptions<AppSettings> appSettings, InfoContext context)
@@ -21,22 +24,37 @@ namespace WSInformatica.Services
             _appSettings = appSettings.Value;
             _context = context;
         }
+
         public UserResponse Auth(AuthRequest model)
         {
-            UserResponse userresponse = new UserResponse();
+            var efectivo = _context.Efectivo
+                         .Include(e => e.User)
+                         .FirstOrDefault(e => e.Legajo == model.Legajo);
 
-            string spassword = Encrypt.GetSHA256(model.Password);
-            var usuario = _context.User.Where(u => u.Password == spassword).FirstOrDefault();
+            if (efectivo == null || efectivo.User == null)
+            {
+                throw new KeyNotFoundException("Usuario o Contraseña erronea.");
+            }
 
-            if (usuario == null) return null;
+            var usuario = efectivo.User;
 
-            //userresponse.Email = usuario.Email;
-            userresponse.Token = GetToken(usuario);
+            if (!BCrypt.Net.BCrypt.Verify(model.Password, usuario.Password))
+            {
+                throw new KeyNotFoundException("Usuario o Contraseña erronea.");
+            }
 
-            return userresponse;
+            var userResponse = new UserResponse
+            {
+                Legajo = efectivo.Legajo,
+                EsAdmin = usuario.EsAdmin,
+                Token = GetToken(usuario, efectivo.Legajo)
+            };
+
+            return userResponse;
         }
 
-        private string GetToken(User usuario) //creamos el token y le damos la confiuracion que queremos
+
+        private string GetToken(User usuario, int legajo) 
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var llave = Encoding.ASCII.GetBytes(_appSettings.Secreto);
@@ -45,15 +63,109 @@ namespace WSInformatica.Services
                 Subject = new ClaimsIdentity(
                     new Claim[]
                     {
-                        new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                       // new Claim(ClaimTypes.NameIdentifier, usuario.Email)
+                    new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                    new Claim("IdEfectivo", usuario.IdEfectivo.ToString()), 
+                    new Claim("Legajo", legajo.ToString()), 
+                    new Claim(ClaimTypes.Role, usuario.EsAdmin ? "Admin" : "User") 
                     }
-                    ),
-                Expires = DateTime.UtcNow.AddDays(60),//tiempo que dura el token
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(llave), SecurityAlgorithms.HmacSha256Signature) //aca se encrypta
+                ),
+                Expires = DateTime.UtcNow.AddDays(1),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(llave), SecurityAlgorithms.HmacSha256Signature),
+                Issuer = _appSettings.Issuer,   
+                Audience = _appSettings.Audience
+
             };
-            var token = tokenHandler.CreateToken(tokenDescriptor); // se asigana el token con la descripcion que creamos  
-            return tokenHandler.WriteToken(token); //devuevlo el token en string
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public void CreateUser(CreateUserRequest request)
+        {
+            var efectivo = _context.Efectivo
+                                   .Include(e => e.User) 
+                                   .FirstOrDefault(e => e.Legajo == request.Legajo);
+
+            if (efectivo == null)
+            {
+                throw new Exception("El efectivo con el legajo especificado no existe.");
+            }
+
+            if (efectivo.User != null)
+            {
+                throw new Exception("Este efectivo ya tiene un usuario asociado.");
+            }
+
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+            var newUser = new User
+            {
+                IdEfectivo = efectivo.Id,
+                Password = hashedPassword,
+                EsAdmin = request.EsAdmin
+            };
+
+            _context.User.Add(newUser);
+            _context.SaveChanges();
+        }
+
+        public void ChangePassword(ChangePasswordRequest request)
+        {
+            var user = _context.User.FirstOrDefault(u => u.Id == request.IdUsuario);
+
+            if (user == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+           
+            if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.Password))
+            {
+                throw new Exception("La contraseña actual es incorrecta.");
+            }
+
+            string newHashedPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                        
+            user.Password = newHashedPassword;
+            _context.User.Update(user); 
+            _context.SaveChanges();           
+        }
+
+        public User UpdateUser(int userId, string? newPassword, bool? newIsAdmin)
+        {
+            var userToUpdate = _context.User.Find(userId);
+
+            if (userToUpdate == null)
+            {
+                throw new KeyNotFoundException("Usuario no encontrado.");
+            }
+
+            if (!string.IsNullOrEmpty(newPassword))
+            {
+                userToUpdate.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            }
+
+            if (newIsAdmin.HasValue)
+            {
+                userToUpdate.EsAdmin = newIsAdmin.Value;
+            }
+
+            _context.SaveChanges();
+            return userToUpdate;
+        }
+
+        public IEnumerable<UserDTO> GetAllUsers()
+        {
+            return _context.User
+                .Include(u => u.Efectivo) 
+                .Select(u => new UserDTO
+                {
+                    Id = u.Id,
+                   
+                    Legajo = u.Efectivo != null ? u.Efectivo.Legajo.ToString() : null,
+                    Nombre = u.Efectivo != null ? u.Efectivo.Nombre : "N/A",
+                    Apellido = u.Efectivo != null ? u.Efectivo.Apellido : "N/A",
+                    IsAdmin = u.EsAdmin 
+                })
+                .ToList();
         }
     }
 }

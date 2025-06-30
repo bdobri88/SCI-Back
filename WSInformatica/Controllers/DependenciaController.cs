@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WSInformatica.DTOs.DependenciaDTO;
@@ -11,6 +12,7 @@ namespace WSInformatica.Controllers
 {
     [Route("api/Dependencia")]
     [ApiController]
+    [Authorize]
     public class DependenciaController : ControllerBase
     {
         private readonly InfoContext _context;
@@ -30,7 +32,7 @@ namespace WSInformatica.Controllers
             {
                 var lst = _context.Dependencia.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
                 oRespuesta.Exito = 1;
-                oRespuesta.data = _mapper.Map<List<GetAllDependenciaDTO>>(lst); ;
+                oRespuesta.data = _mapper.Map<List<GetAllDependenciaDTO>>(lst);
             }
             catch (Exception ex)
             {
