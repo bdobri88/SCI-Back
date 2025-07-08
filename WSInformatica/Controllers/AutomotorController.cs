@@ -48,8 +48,6 @@ namespace WSInformatica.Controllers
                 var oAutomotor = _mapper.Map<Automotor>(oModel);
                 _context.Add(oAutomotor);
                 await _context.SaveChangesAsync();
-                /*  oRespuesta.Exito = 1;
-                  oRespuesta.data = oAutomotor;*/
             }
             catch (Exception ex)
             {
@@ -109,7 +107,7 @@ namespace WSInformatica.Controllers
             oRespuesta.Exito = 0;
             try
             {
-                var lst = await _context.TipoAutomotor.ToListAsync(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = await _context.TipoAutomotor.ToListAsync();
                 oRespuesta.Exito = 1;
                 oRespuesta.data = lst;
             }

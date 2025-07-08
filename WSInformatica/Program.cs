@@ -19,15 +19,13 @@ var configuration = builder.Configuration
 
 // Add services to the container.
 
-/* Este codigo lo saque de la pagina de cors,es para interectuar con el Front-End*/
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:4200",
-                                              "http://localhost:59202",
-                                              "https://tudominiofrontend.com") // <--- ¡CAMBIAR ESTO PARA PRODUCCIÓN!
+                                              "http://localhost:59202") 
                                               .AllowAnyHeader()
                                               .AllowAnyMethod()
                                               .AllowCredentials();
@@ -36,10 +34,9 @@ builder.Services.AddCors(options =>
 
 
 
-
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<InfoContext>(options => // inyeccion de dependencia para la DB
+builder.Services.AddDbContext<InfoContext>(options => 
 options.UseSqlServer(builder.Configuration.GetConnectionString("defaultConnection"), b => b.EnableRetryOnFailure()));
 
 
@@ -59,34 +56,30 @@ builder.Services.AddAuthentication(d =>
 })
     .AddJwtBearer(d =>
     {
-        d.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); // True en producción, false en desarrollo
+        d.RequireHttpsMetadata = !builder.Environment.IsDevelopment(); 
         d.SaveToken = true;
         d.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(llave),
-            ValidateIssuer = true,    // <--- ¡AHORA VALIDAMOS EL EMISOR!
-            ValidIssuer = appSettings.Issuer, // <--- Aquí el emisor esperado
-            ValidateAudience = true,  // <--- ¡AHORA VALIDAMOS LA AUDIENCIA!
-            ValidAudience = appSettings.Audience, // <--- Aquí la audiencia esperada
-            ValidateLifetime = true,  // <--- ¡CRÍTICO: VALIDAR LA VIDA ÚTIL DEL TOKEN!
-            ClockSkew = TimeSpan.Zero // <--- Elimina el tiempo de gracia en la expiración
+            ValidateIssuer = true,    
+            ValidIssuer = appSettings.Issuer, 
+            ValidateAudience = true,  
+            ValidAudience = appSettings.Audience, 
+            ValidateLifetime = true,  
+            ClockSkew = TimeSpan.Zero 
         };
     });
 
 
-builder.Services.AddScoped<IUserService, UserService>();/* codigo injectado, no ncesito crearlo lo puedo recibir directamente por
-                                                          cada solicitud por cada resquest gracias al scoped */
-builder.Services.AddScoped<IConsultaService, ConsultaService>(); // codigo injectado 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IConsultaService, ConsultaService>();
 
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "SCI-Informatica", Version = "v1" });
-
-    // Configuración para JWT Bearer en Swagger
+    
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "Ingresa el token JWT de esta manera: Bearer {tu token}",
@@ -122,22 +115,17 @@ using (var scope = app.Services.CreateScope())
     {
         var dbContext = services.GetRequiredService<InfoContext>(); 
         dbContext.Database.Migrate();
-        // Opcional: Si quieres seedear datos iniciales después de migrar
-        // SeedData.Initialize(services);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
-        // Considera detener la aplicación si la migración es crítica
-        // throw;
     }
 }
 
 
 // Configure the HTTP request pipeline.
 
-// Configura el pipeline HTTP
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -155,21 +143,20 @@ else
 
 
 
-app.UseStaticFiles(); // Para servir archivos estáticos desde wwwroot
+app.UseStaticFiles(); 
 app.UseRouting();
 
 
 app.UseHttpsRedirection();
 
-app.UseCors(MyAllowSpecificOrigins);// Permite usar los CORS, lo saque de la Pag Oficial. va con lo de arriba addpolicy
-
-app.UseAuthentication();// JWT llamada a la funcion
+app.UseCors(MyAllowSpecificOrigins);
+app.UseAuthentication();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapFallbackToFile("index.html"); // Redirige todas las solicitudes no manejadas a index.html en wwwroot
+app.MapFallbackToFile("index.html"); 
 
 
 app.Run();

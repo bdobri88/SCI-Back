@@ -26,8 +26,7 @@ namespace WSInformatica.Utiliades
             CreateMap<ConsultaPersonaDTO,Persona>();
             CreateMap<ConsultaAutomotorDTO,Automotor>();
             CreateMap<ConsultaArmaDTO,Arma>();
-            //CreateMap<Consulta, ConsultasDTO>()
-            //.ForMember(dest => dest.DependenciaNombre, opt => opt.MapFrom(src => src.IdjuridiccionNavigation.Nombre));           
+        //CreateMap<Consulta, ConsultasDTO>()          
 
             CreateMap<Consulta,ConsultaCantDiarioDTO>();
 

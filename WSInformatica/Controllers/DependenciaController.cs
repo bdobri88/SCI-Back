@@ -30,7 +30,7 @@ namespace WSInformatica.Controllers
             oRespuesta.Exito = 0;
             try
             {
-                var lst = _context.Dependencia.OrderByDescending(d => d.Id).ToList(); //Busco Todos los registros de forma ordena y desendiente por id
+                var lst = _context.Dependencia.OrderByDescending(d => d.Id).ToList(); 
                 oRespuesta.Exito = 1;
                 oRespuesta.data = _mapper.Map<List<GetAllDependenciaDTO>>(lst);
             }
@@ -102,7 +102,7 @@ namespace WSInformatica.Controllers
             }
             catch (DbUpdateException ex)
             {
-                // Verificar si la excepción se debe a una violación de la restricción de clave foránea
+                
                 if (ex.InnerException != null && ex.InnerException.Message.Contains("REFERENCE constraint"))
                 {
                     oRespuesta.Mensaje = "No se puede eliminar la dependencia porque tiene efectivos asociados.";

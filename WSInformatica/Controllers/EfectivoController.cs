@@ -89,8 +89,6 @@ namespace WSInformatica.Controllers
                 }
 
                 oRespuesta.Exito = 1;
-                // var dependencEfectivo = oEfectivo.Dependencia.Nombre;
-
                 oRespuesta.data = _mapper.Map<GetAllEfectivoDTO>(oEfectivo);
 
                 return Ok(oRespuesta);
@@ -102,7 +100,7 @@ namespace WSInformatica.Controllers
             }
         }
 
-        [HttpPost("CreateEfectivo")] //Insertar Un Efectivo
+        [HttpPost("CreateEfectivo")] 
         public async Task<ActionResult<BaseResponse<bool>>> add([FromBody] EfectivoCreateDTO model)
         {
             Respuesta oRespuesta = new Respuesta();
