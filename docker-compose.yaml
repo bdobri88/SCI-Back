@@ -1,46 +1,58 @@
-
+version: '3.8'
 services:
   sql-server:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: informatica_sql_server # Nombre legible para el contenedor
+    container_name: informatica_sql_server
     restart: always
     user: root
     environment:
-      SA_PASSWORD: "Brai123@Secure" # ¡Verifica esta!
+      SA_PASSWORD: "Brai123@Secure"
       ACCEPT_EULA: "Y"
     ports:
-      - "1433:1433" # Mapea el puerto del contenedor al host
+      - "1433:1433"
     volumes:
-      - sql_server_data:/var/opt/mssql/data # Volumen persistente para los datos
-    healthcheck: # Opcional pero recomendado para asegurar que SQL Server esté listo
-      test: ["CMD-SHELL", "pgrep sqlservr > /dev/null || exit 1"]
+      - sql_server_data:/var/opt/mssql/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"Brai123@Secure\" -Q \"SELECT 1\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
 
   api:
     build:
-      context: . # La ruta al Dockerfile de tu proyecto .NET (asume que Dockerfile está en la raíz de tu solución o API)
-      dockerfile: Dockerfile # Nombre de tu Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: informatica_api
     restart: always
     ports:
-      - "8080:80" # Mapea el puerto 80 del contenedor (donde tu API escuchará) al puerto 8080 del host
-      # Si tu app usa HTTPS en Docker, podrías mapear - "8443:443"
+      - "8080:80"
     environment:
-      # Sobreescribe la cadena de conexión para que apunte al servicio 'sql-server' dentro de Docker Compose
       ConnectionStrings__defaultConnection: "Server=sql-server;DataBase=Informatica;User Id=sa;Password=Brai123@Secure;TrustServerCertificate=True"
-      AppSettings__Secreto: "12381989as1938192981992as1129898911212989a98" # Reemplaza con tu secreto real
-      AppSettings__Issuer: "http://localhost:8080"
-      AppSettings__Audience: "http://localhost:4200"
-      ASPNETCORE_URLS: "http://+:80" # Configura la API para escuchar en el puerto 80
-      ASPNETCORE_ENVIRONMENT: "Development" # Puedes cambiar a Production para el entorno final
+      AppSettings__Secreto: "12381989as1938192981992as1129898911212989a98"
+      AppSettings__Issuer: "http://api"
+      AppSettings__Audience: "http://frontend-service"
+      ASPNETCORE_URLS: "http://+:80"
+      ASPNETCORE_ENVIRONMENT: "Development"
     depends_on:
       sql-server:
-        condition: service_healthy # Asegura que la API no inicie hasta que SQL Server esté "healthy"
+        condition: service_healthy
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro # Para desarrollo, si usas User Secrets
-      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro # Para desarrollo, si usas HTTPS
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+
+  # --- SERVICIO PARA EL FRONTEND ---
+  frontend-service: 
+    build:
+      context: ../SCI-Front/app
+      dockerfile: Dockerfile
+    container_name: informatica_frontend
+    restart: always
+    ports:
+      - "4200:80"
+    environment: {} 
+    depends_on:
+      api:
+        condition: service_started
 
 volumes:
-  sql_server_data: # Define el volumen persistente para SQL Server
+  sql_server_data:
