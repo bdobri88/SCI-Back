@@ -26,6 +26,7 @@ builder.Services.AddCors(options =>
                       policy =>
                       {
                           policy.WithOrigins("http://localhost:4200",
+                                              "http://localhost:59202",
                                               "https://tudominiofrontend.com") // <--- ¡CAMBIAR ESTO PARA PRODUCCIÓN!
                                               .AllowAnyHeader()
                                               .AllowAnyMethod()
