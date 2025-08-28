@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WSInformatica.DTOs.EfectivoDTO;
@@ -10,7 +11,7 @@ namespace WSInformatica.Controllers
 {
     [Route("api/Efectivo")]
     [ApiController]
-    // [Authorize]
+    [Authorize]
 
     public class EfectivoController : ControllerBase
     {
