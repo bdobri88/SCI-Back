@@ -16,7 +16,7 @@ namespace WSInformatica.Controllers
 {
     [Route("api/Consulta")]
     [ApiController]
-    [Authorize] 
+   // [Authorize]
 
     public class ConsultaController : ControllerBase
     {
@@ -24,7 +24,7 @@ namespace WSInformatica.Controllers
         private readonly IMapper _mapper;
         private readonly InfoContext _context;
 
-        public ConsultaController(IConsultaService consul,IMapper mapper, InfoContext context)
+        public ConsultaController(IConsultaService consul, IMapper mapper, InfoContext context)
         {
             this._consulta = consul;
             _mapper = mapper;
@@ -48,7 +48,7 @@ namespace WSInformatica.Controllers
                     foreach (var lPersonas in model.ListPersona)
                     {
                         lPersonas.ConsultaId = idDeNuevaConsulta;
-                        var persona = _mapper.Map<Persona> (lPersonas);
+                        var persona = _mapper.Map<Persona>(lPersonas);
                         _context.Persona.Add(persona);
                         await _context.SaveChangesAsync();
                     }
@@ -58,7 +58,7 @@ namespace WSInformatica.Controllers
                     foreach (var lAutomotor in model.ListAutomotor)
                     {
                         lAutomotor.ConsultaId = idDeNuevaConsulta;
-                        var automotor = _mapper.Map<Automotor> (lAutomotor);
+                        var automotor = _mapper.Map<Automotor>(lAutomotor);
                         _context.Add(automotor);
                         await _context.SaveChangesAsync();
                     }
@@ -69,7 +69,7 @@ namespace WSInformatica.Controllers
                     foreach (var lArmas in model.ListArma)
                     {
                         lArmas.ConsultaId = idDeNuevaConsulta;
-                        var arma = _mapper.Map<Arma> (lArmas);
+                        var arma = _mapper.Map<Arma>(lArmas);
                         _context.Add(arma);
                         await _context.SaveChangesAsync();
                     }
@@ -82,19 +82,19 @@ namespace WSInformatica.Controllers
                 var innerException = ex.InnerException;
 
                 Console.WriteLine(innerException.Message);
-              
+
             }
             return Ok(oRespuesta);
         }
 
 
         [HttpGet("CantidadConsultasdiariasPorDependencia")]
-        public async Task<ActionResult<List<ConsultaCantDiarioDTO>>> QuantityDailyConsultaByDependence([FromQuery] string? date )
+        public async Task<ActionResult<List<ConsultaCantDiarioDTO>>> QuantityDailyConsultaByDependence([FromQuery] string? date)
         {
-            Respuesta oRespuesta = new Respuesta();           
- 
+            Respuesta oRespuesta = new Respuesta();
+
             DateTime datee = DateTime.ParseExact(date, "dd-MM-yyyy", null);
-            
+
             try
             {
                 var consultasPorDependencia = _context.Consulta
@@ -111,7 +111,7 @@ namespace WSInformatica.Controllers
                     .Select(group => new
                     {
                         DependenciaId = group.Key,
-                         NombreDependencia = _context.Dependencia
+                        NombreDependencia = _context.Dependencia
                         .Where(dependencia => dependencia.Id == group.Key)
                         .Select(dependencia => dependencia.Nombre)
                         .FirstOrDefault(),
@@ -131,7 +131,7 @@ namespace WSInformatica.Controllers
                             (consulta.Automotors?.Count(automotor => automotor.Resultado) ?? 0) +
                             (consulta.Personas?.Count(persona => persona.Resultado) ?? 0))
 
-                    }).ToList();                
+                    }).ToList();
 
 
                 if (consultasConDetalles.Count == 0)
@@ -141,11 +141,11 @@ namespace WSInformatica.Controllers
                 }
 
                 oRespuesta.Exito = 1;
-                oRespuesta.data = consultasConDetalles;                
+                oRespuesta.data = consultasConDetalles;
 
             }
             catch (Exception ex)
-            {    oRespuesta.Mensaje = ex.Message;    }
+            { oRespuesta.Mensaje = ex.Message; }
 
             return Ok(oRespuesta);
         }
@@ -167,7 +167,7 @@ namespace WSInformatica.Controllers
                     .Include(consulta => consulta.Personas)
                     .Include(consulta => consulta.Automotors)
                     .ToList();
-                 
+
 
                 totalConsultas.CantArmas = cantidadConsultas.Sum(consulta => consulta.Armas.Count);
                 totalConsultas.CantPersonas = cantidadConsultas.Sum(consulta => consulta.Personas.Count);
@@ -202,7 +202,7 @@ namespace WSInformatica.Controllers
         {
             Respuesta oRespuesta = new Respuesta();
             DateTime dateD = DateTime.ParseExact(date, "yyyy-MM", null);
-            var month = dateD.Month; 
+            var month = dateD.Month;
             var year = dateD.Year;
 
             try
@@ -250,7 +250,7 @@ namespace WSInformatica.Controllers
             Respuesta oRespuesta = new Respuesta();
             DateTime dateD = DateTime.ParseExact(date, "yyyy-MM", null);
             var month = dateD.Month;
-            var year = dateD.Year; 
+            var year = dateD.Year;
 
             try
             {
@@ -305,6 +305,62 @@ namespace WSInformatica.Controllers
             { oRespuesta.Mensaje = ex.Message; }
 
             return Ok(oRespuesta);
+        }
+
+        [HttpGet("MapaCalor")]
+        public async Task<ActionResult<List<ConsultaMapaCalorDTO>>> MapaCalor(
+            [FromQuery] string? dominio,
+            [FromQuery] int? dni,
+            [FromQuery] DateTime? fechaInicio,
+            [FromQuery] DateTime? fechaFin)
+        {
+            var query = _context.Consulta.AsQueryable();
+
+            if (!string.IsNullOrEmpty(dominio))
+            {
+               query = query.Join(_context.Automotor,
+                                    consulta => consulta.Id,
+                                    automotor => automotor.ConsultaId,
+                                    (consulta, automotor) => new { consulta, automotor })
+                             .Where(x => x.automotor.Dominio == dominio)
+                             .Select(x => x.consulta);
+            }
+
+            if (dni.HasValue)
+            {
+                // Obtiene los IDs de las consultas que coinciden con el DNI
+                var consultaIds = _context.Persona
+                    .Where(p => p.Dni == dni.Value)
+                    .Select(p => p.ConsultaId)
+                    .ToList();
+
+                // Filtra la consulta principal usando los IDs
+                query = query.Where(c => consultaIds.Contains(c.Id));
+            }
+
+            if (fechaInicio.HasValue)
+            {
+                query = query.Where(c => c.Fecha >= fechaInicio.Value);
+            }
+
+            if (fechaFin.HasValue)
+            {
+                query = query.Where(c => c.Fecha <= fechaFin.Value);
+            }
+
+            // 3. Selecciona los datos necesarios y ejecuta la consulta
+            var resultado = await query
+                .Where(c => c.Latitud.HasValue && c.Longitud.HasValue) 
+                .Select(c => new ConsultaMapaCalorDTO
+                {
+                    Lugar = c.Lugar,
+                    Latitud = c.Latitud.Value,
+                    Longitud = c.Longitud.Value,
+                    Fecha = c.Fecha
+                })
+                .ToListAsync();
+
+            return Ok(resultado);
         }
         //[httpget("buscar un consulta por efectivo solicitante")]
         //public async task<actionresult<list<consultasdto>>> findconsultasolicitante([fromquery] int id)

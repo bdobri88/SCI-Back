@@ -13,6 +13,9 @@ namespace WSInformatica.DTOs.ConsultaDTO
         public int IdJuridiccion { get; set; }
         public DateTime Fecha { get; set; }
 
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
+
         public List<ConsultaPersonaDTO>? ListPersona { get; set; }
         public List<ConsultaAutomotorDTO>? ListAutomotor { get; set; }
         public List<ConsultaArmaDTO>? ListArma { get; set; }

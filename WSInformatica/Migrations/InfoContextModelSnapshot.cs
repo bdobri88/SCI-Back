@@ -109,6 +109,12 @@ namespace WSInformatica.Migrations
                     b.Property<int>("Idjuridiccion")
                         .HasColumnType("int");
 
+                    b.Property<double?>("Latitud")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("Longitud")
+                        .HasColumnType("float");
+
                     b.Property<string>("Lugar")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

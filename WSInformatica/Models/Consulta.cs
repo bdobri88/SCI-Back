@@ -10,6 +10,8 @@ namespace WSInformatica.Models
         public string Lugar { get; set; } = null!;
         public int Idjuridiccion { get; set; }
         public DateTime Fecha { get; set; }
+        public double? Latitud { get; set; }
+        public double? Longitud { get; set; }
 
         public virtual ICollection<Arma> Armas { get; set; }
         public virtual ICollection<Automotor> Automotors { get; set; }
